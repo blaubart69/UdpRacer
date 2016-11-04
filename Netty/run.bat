@@ -1,0 +1,1 @@
+java -cp .\bin;.\libs\netty-3.6.3.Final.jar;.\libs\slf4j-api-1.7.2.jar;.\libs\slf4j-simple-1.7.2.jar com.spindi.UdpRacer %*
