@@ -25,15 +25,12 @@ namespace CSharp
         public static async void Run(int port)
         {
             UdpClient udpSock = new UdpClient(port);
-
             IPEndPoint nextNode = new IPEndPoint(0, port);
 
             while (true)
             {
                 UdpReceiveResult data = await udpSock.ReceiveAsync().ConfigureAwait(false);
-
                 Interlocked.Increment(ref Program._packages);
-
                 long nextIP;
 
                 unsafe

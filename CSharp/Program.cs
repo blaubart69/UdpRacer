@@ -24,10 +24,13 @@ namespace CSharp
             }
 
             _packages = 0;
+            Console.WriteLine($"listening on port: {opts.Port}");
             UdpRacerServer.Run(opts.Port);
 
+            Console.WriteLine($"IP count: {opts.IPs.Count}");
             if (opts.IPs != null && opts.IPs.Count > 0)
             {
+                Console.WriteLine($"IPs: {String.Join(";",opts.IPs)}");
                 byte[] initialPacket = UdpRacerStart.CreateNetworkPackage(opts.IPs);
                 using (UdpClient udpc = new UdpClient())
                 {
