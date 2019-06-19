@@ -31,7 +31,7 @@ namespace CSharp
             if (opts.IPs != null && opts.IPs.Count > 0)
             {
                 Console.WriteLine($"IPs parsed: {String.Join(";",opts.IPs)}");
-                byte[] initialPacket = UdpRacerStart.CreateNetworkPackage(opts.IPs);
+                byte[] initialPacket = UdpRacerStart.CreateNetworkPackage(opts.IPs, opts.Port);
 
                 Console.WriteLine("++++ UDP package");
                 UdpRacerStart.PrintUdpRacerPackage(initialPacket);

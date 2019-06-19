@@ -25,6 +25,15 @@ namespace CSharp
         ///     SOCKADDR_IN NextAddrIn[NUMBER_OF_MAX_CHAIN];
         /// }
         /// DATA;
+        /// 
+        /// typedef struct sockaddr_in {
+        ///         short          sin_family;
+        ///         USHORT sin_port;
+        ///         IN_ADDR sin_addr;
+        ///         CHAR sin_zero[8];
+        ///     }
+        ///     SOCKADDR_IN, * PSOCKADDR_IN;
+        /// 
         /// </summary>
         /// <param name="port"></param>
         public static async void RunOne(UdpClient udpSock, int port)
@@ -57,8 +66,10 @@ namespace CSharp
                             ++(*hops);
                             *next = (*next + 1) % *last;
 
-                            UInt32* ips = (UInt32*)&(bptr[16]);
-                            nextIP = ips[*next];
+                            byte* sockaddr_in_next = (bptr + 16) + (*next * 16);
+                            UInt32* nextIPptr = (UInt32*)(sockaddr_in_next + 4);
+
+                            nextIP = *nextIPptr;
                         }
                     }
 
