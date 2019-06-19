@@ -69,6 +69,7 @@ namespace CSharp
                 IPAddress ParsedIP;
                 if (IPAddress.TryParse(ip, out ParsedIP))
                 {
+                    IPs.Add(ParsedIP);
                     if (mode.HasValue)
                     {
                         if (mode != ParsedIP.AddressFamily)
