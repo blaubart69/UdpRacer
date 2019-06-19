@@ -33,5 +33,32 @@ namespace CSharp
 
             return packet;
         }
+        public static void PrintUdpRacerPackage(byte[] buffer)
+        {
+            unsafe
+            {
+                fixed (byte* bptr = &(buffer[0]))
+                {
+                    UInt32* id = (UInt32*)(bptr + 0);
+                    UInt32* hops = (UInt32*)(bptr + 4);
+                    UInt32* next = (UInt32*)(bptr + 8);
+                    UInt32* last = (UInt32*)(bptr + 12);
+
+                    Console.WriteLine(
+                        $"id\t{*id:X2}\n"
+                      + $"hops\t{*hops}\n"
+                      + $"next\t{*next}\n"
+                      + $"last\t{*last}");
+
+                    UInt32* ips = (UInt32*)&(bptr[16]);
+                    for (int i = 0; i < *last; ++i)
+                    {
+                        IPAddress ip = new IPAddress(*ips);
+                        ips++;
+                        Console.WriteLine($"IP[{i}]\t{ip}");
+                    }
+                }
+            }
+        }
     }
 }

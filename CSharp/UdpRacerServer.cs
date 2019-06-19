@@ -1,16 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CSharp
 {
-    class UdpRacerServer
+    static class UdpRacerServer
     {
+        public static void Start(int port, int howMany)
+        {
+            UdpClient udpSock = new UdpClient(port, AddressFamily.InterNetwork);
+            for (int i=0; i<howMany;++i)
+            {
+                RunOne(udpSock, port);
+            }
+            Console.Error.WriteLine($"started {howMany} async receive tasks");
+        }
         /// <summary>
         /// typedef struct _DATA {
         ///     DWORD Id;
@@ -22,35 +27,51 @@ namespace CSharp
         /// DATA;
         /// </summary>
         /// <param name="port"></param>
-        public static async void Run(int port)
+        public static async void RunOne(UdpClient udpSock, int port)
         {
-            UdpClient udpSock = new UdpClient(port);
             IPEndPoint nextNode = new IPEndPoint(0, port);
 
             while (true)
             {
-                UdpReceiveResult data = await udpSock.ReceiveAsync().ConfigureAwait(false);
-                Interlocked.Increment(ref Program._packages);
-                long nextIP;
-
-                unsafe
+                #if DEBUG
+                Console.WriteLine("issuing ReceiveAsync()");
+                #endif
+                try
                 {
-                    fixed (byte* bptr = &data.Buffer[0])
+                    UdpReceiveResult data = await udpSock.ReceiveAsync().ConfigureAwait(false);
+                
+                    Interlocked.Increment(ref Program._packages);
+                    UInt32 nextIP;
+
+                    unsafe
                     {
-                        long* hops  = (long*)bptr[4];
-                        long* next  = (long*)bptr[8];
-                        long* last  = (long*)bptr[12];
+                        fixed (byte* bptr = &(data.Buffer[0]))
+                        {
+                            UInt32* hops  = (UInt32*)(bptr +  4);
+                            UInt32* next  = (UInt32*)(bptr +  8);
+                            UInt32* last  = (UInt32*)(bptr + 12);
 
-                        ++(*hops);
-                        *next = (*next + 1) % *last;
+    #if DEBUG
+                            Console.WriteLine($"package received! hops, next, last\t{*hops},{*next},{*last}");
+    #endif
+                            ++(*hops);
+                            *next = (*next + 1) % *last;
 
-                        long* ips = (long*)(bptr + 16);
-                        nextIP = ips[*next];
+                            UInt32* ips = (UInt32*)&(bptr[16]);
+                            nextIP = ips[*next];
+                        }
                     }
-                }
 
-                nextNode.Address = new IPAddress(nextIP);
-                udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
+                    nextNode.Address = new IPAddress(nextIP);
+    #if DEBUG
+                    Console.Error.WriteLine($"sending to IP {nextNode}...");
+    #endif
+                    udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
+                }
+                catch (SocketException sex)
+                {
+                    Console.Error.WriteLine($"ReceiveAsyncEx: {sex.Message}");
+                }
             }
         }
     }
