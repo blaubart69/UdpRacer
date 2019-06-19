@@ -11,7 +11,7 @@ namespace CSharp
 {
     class Opts
     {
-        public int Port;
+        public UInt16 Port;
         public IList<IPAddress> IPs;
 
         private Opts()
@@ -26,7 +26,7 @@ namespace CSharp
             string IPList = null;
             Opts tmpOpts = new Opts() { Port = 4444 };
             var cmdOpts = new BeeOptsBuilder()
-                .Add('p', "port", OPTTYPE.VALUE, "udp port to listen",      o => tmpOpts.Port = Convert.ToInt32(o))
+                .Add('p', "port", OPTTYPE.VALUE, "udp port to listen",      o => tmpOpts.Port = Convert.ToUInt16(o))
                 .Add('i', "ip", OPTTYPE.VALUE, "ips for packet to inject",  o => IPList = o)
                 .Add('h', "help", OPTTYPE.BOOL,  "show help",               o => showhelp = true)
                 .GetOpts();
