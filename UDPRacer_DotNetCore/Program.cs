@@ -55,7 +55,7 @@ namespace UDPRacer
                         long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0) / 2;
                         if (pkgPerSec > 0)
                         {
-                            Console.WriteLine($"{DateTime.Now}\t{pkgPerSec}/s\tfrom: {_G_recv?.ToString()}\tto: {_G_sent?.ToString()}");
+                            Console.WriteLine($"{DateTime.Now}\t{pkgPerSec,6}/s\tfrom: {_G_recv?.ToString()}\tto: {_G_sent?.ToString()}");
                         }
                     }
                 }
