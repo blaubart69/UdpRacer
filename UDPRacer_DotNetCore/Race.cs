@@ -47,7 +47,8 @@ namespace UDPRacer
                 }
                 
                 nextNode.Address = new IPAddress(nextIP);
-                udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
+                //udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
+                udpSock.Send(data.Buffer, data.Buffer.Length, nextNode);
             }
         }
 
