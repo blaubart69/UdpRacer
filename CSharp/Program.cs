@@ -24,21 +24,28 @@ namespace CSharp
             }
 
             _packages = 0;
+            UdpRacerServer.Start(opts.Port, 16);
             Console.WriteLine($"listening on port: {opts.Port}");
-            UdpRacerServer.Run(opts.Port);
 
-            Console.WriteLine($"IP count: {opts.IPs.Count}");
+
             if (opts.IPs != null && opts.IPs.Count > 0)
             {
-                Console.WriteLine($"IPs: {String.Join(";",opts.IPs)}");
-                byte[] initialPacket = UdpRacerStart.CreateNetworkPackage(opts.IPs);
+                Console.WriteLine($"IPs parsed: {String.Join(";",opts.IPs)}");
+                byte[] initialPacket = UdpRacerStart.CreateNetworkPackage(opts.IPs, opts.Port);
+
+                Console.WriteLine("++++ UDP package");
+                UdpRacerStart.PrintUdpRacerPackage(initialPacket);
+                Console.WriteLine("++++ UDP package");
+
                 using (UdpClient udpc = new UdpClient())
                 {
+                    var sendTo = new IPEndPoint(opts.IPs[0], opts.Port);
+
                     udpc.Send(
                             initialPacket,
                             initialPacket.Length,
-                            new IPEndPoint(opts.IPs[0], opts.Port));
-                    Console.WriteLine($"injected package to {opts.IPs[0]}");
+                            sendTo);
+                    Console.WriteLine($"sent initial package to: {sendTo}");
                 }
             }
 
