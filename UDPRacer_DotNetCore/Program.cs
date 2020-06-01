@@ -45,10 +45,13 @@ namespace UDPRacer
 
                 using (ManualResetEvent loop = new ManualResetEvent(false))
                 {
-                    while (!loop.WaitOne(1000))
+                    while (!loop.WaitOne(2000))
                     {
-                        long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0);
-                        Console.WriteLine($"{pkgPerSec}/s");
+                        long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0) / 2;
+                        if (pkgPerSec > 0)
+                        {
+                            Console.WriteLine($"{DateTime.Now}\t{pkgPerSec}/s");
+                        }
                     }
                 }
             }
