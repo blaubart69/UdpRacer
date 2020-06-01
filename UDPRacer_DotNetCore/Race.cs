@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 namespace UDPRacer
@@ -34,20 +33,20 @@ namespace UDPRacer
 
                 unsafe
                 {
-                    fixed (byte* bptr = &data.Buffer[0])
+                    fixed (byte* bptr = &(data.Buffer[0]))
                     {
-                        UInt32* hops = (UInt32*)bptr[4];
-                        UInt32* next = (UInt32*)bptr[8];
-                        UInt32* last = (UInt32*)bptr[12];
+                        UInt32* hops = (UInt32*)(bptr +  4);
+                        UInt32* next = (UInt32*)(bptr +  8);
+                        UInt32* last = (UInt32*)(bptr + 12);
 
                         ++(*hops);
                         *next = (*next + 1) % *last;
 
-                        long* ips = (long*)(bptr + 16);
+                        UInt32* ips = (UInt32*)(bptr + 16);
                         nextIP = ips[*next];
                     }
                 }
-
+                
                 nextNode.Address = new IPAddress(nextIP);
                 udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
             }
