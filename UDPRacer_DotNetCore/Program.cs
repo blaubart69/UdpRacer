@@ -27,18 +27,21 @@ namespace UDPRacer
                 {
                     var firstHost = new IPEndPoint(hosts[0], port);
                     udpc.Send(initialPacket, initialPacket.Length, firstHost);
-                    Console.WriteLine($"injected package to {firstHost}");
+                    Console.WriteLine($"injected package to {firstHost}. size: {initialPacket.Length} bytes");
                 }
                 return;
             }
 
+            Console.WriteLine($"listening on port {port}");
             Race.Start(port);
 
-            ManualResetEvent ended = new ManualResetEvent(false);
-            while (!ended.WaitOne(1000))
+            using (ManualResetEvent loop = new ManualResetEvent(false))
             {
-                long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0);
-                Console.WriteLine($"{pkgPerSec}/s");
+                while (!loop.WaitOne(1000))
+                {
+                    long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0);
+                    Console.WriteLine($"{pkgPerSec}/s");
+                }
             }
         }
     }
