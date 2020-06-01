@@ -20,9 +20,8 @@ namespace UDPRacer
         /// DATA;
         /// </summary>
         /// <param name="port"></param>
-        public static async void Start(int port)
+        public static async void Start(UdpClient udpSock, int port)
         {
-            UdpClient udpSock = new UdpClient(port);
             IPEndPoint nextNode = new IPEndPoint(0, port);
 
             while (true)

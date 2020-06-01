@@ -35,15 +35,21 @@ namespace UDPRacer
                 return;
             }
 
-            Console.WriteLine($"listening on port {port}");
-            Race.Start(port);
-
-            using (ManualResetEvent loop = new ManualResetEvent(false))
+            using (UdpClient udpSock = new UdpClient(port))
             {
-                while (!loop.WaitOne(1000))
+                for (int i = 0; i < Environment.ProcessorCount; ++i)
                 {
-                    long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0);
-                    Console.WriteLine($"{pkgPerSec}/s");
+                    Race.Start(udpSock, port);
+                }
+                Console.WriteLine($"listening on port {port}. started {Environment.ProcessorCount} send/recv loops");
+
+                using (ManualResetEvent loop = new ManualResetEvent(false))
+                {
+                    while (!loop.WaitOne(1000))
+                    {
+                        long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0);
+                        Console.WriteLine($"{pkgPerSec}/s");
+                    }
                 }
             }
         }
