@@ -28,6 +28,7 @@ namespace UDPRacer
             {
                 UdpReceiveResult data = await udpSock.ReceiveAsync().ConfigureAwait(false);
                 Interlocked.Increment(ref Program._GLOBAL_packages);
+                Program._G_recv = data.RemoteEndPoint;
                 long nextIP;
 
                 unsafe
@@ -47,6 +48,7 @@ namespace UDPRacer
                 }
                 
                 nextNode.Address = new IPAddress(nextIP);
+                Program._G_sent = nextNode;
                 //udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
                 udpSock.Send(data.Buffer, data.Buffer.Length, nextNode);
             }

@@ -9,6 +9,8 @@ namespace UDPRacer
     class Program
     {
         public static long _GLOBAL_packages;
+        public static IPEndPoint _G_recv = null;
+        public static IPEndPoint _G_sent = null;
 
         /// <summary>
         /// race for speed and fun
@@ -37,6 +39,9 @@ namespace UDPRacer
 
             using (UdpClient udpSock = new UdpClient(port))
             {
+                IPEndPoint receivedFrom = null;
+                IPEndPoint sentTo = null;
+
                 for (int i = 0; i < Environment.ProcessorCount; ++i)
                 {
                     Race.Start(udpSock, port);
@@ -50,7 +55,7 @@ namespace UDPRacer
                         long pkgPerSec = Interlocked.Exchange(ref _GLOBAL_packages, 0) / 2;
                         if (pkgPerSec > 0)
                         {
-                            Console.WriteLine($"{DateTime.Now}\t{pkgPerSec}/s");
+                            Console.WriteLine($"{DateTime.Now}\t{pkgPerSec}/s\tfrom: {_G_recv?.ToString()}\tto: {_G_sent?.ToString()}");
                         }
                     }
                 }
