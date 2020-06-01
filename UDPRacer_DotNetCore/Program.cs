@@ -14,11 +14,11 @@ namespace UDPRacer
         /// race for speed and fun
         /// </summary>
         /// <param name="IPs">IPs of the host. seperated by comma</param>
-        /// <param name="inject">injet package and exit</param>
+        /// <param name="inject">injet n packages and exit</param>
         /// <param name="port">UDP port to listen (default: 4444)</param>
-        static void Main(string IPs, bool inject = false, int port = 4444)
+        static void Main(string IPs, int inject = 0, int port = 4444)
         {
-            if ( inject )
+            if ( inject > 0 )
             {
                 var hosts = IPs.Split(",").Select(ip => IPAddress.Parse(ip)).ToList();
 
@@ -26,8 +26,11 @@ namespace UDPRacer
                 using (UdpClient udpc = new UdpClient())
                 {
                     var firstHost = new IPEndPoint(hosts[0], port);
-                    udpc.Send(initialPacket, initialPacket.Length, firstHost);
-                    Console.WriteLine($"injected package to {firstHost}. size: {initialPacket.Length} bytes");
+                    for (int i = 0; i < inject; ++i)
+                    {
+                        udpc.Send(initialPacket, initialPacket.Length, firstHost);
+                    }
+                    Console.WriteLine($"injected {inject} packages to {firstHost}. size: {initialPacket.Length} bytes");
                 }
                 return;
             }
