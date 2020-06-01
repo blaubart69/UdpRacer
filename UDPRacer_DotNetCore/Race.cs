@@ -64,7 +64,7 @@ namespace UDPRacer
                 bw.Write((UInt32)0x6619FEAF);      // id
                 bw.Write((UInt32)0);               // hops
                 bw.Write((UInt32)0);               // next
-                bw.Write((UInt32)IPs.Count-1);     // last
+                bw.Write((UInt32)IPs.Count);       // number of Hosts
 
                 foreach (IPAddress ip in IPs)
                 {
