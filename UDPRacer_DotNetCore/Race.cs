@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace UDPRacer
@@ -29,29 +31,22 @@ namespace UDPRacer
                 UdpReceiveResult data = await udpSock.ReceiveAsync().ConfigureAwait(false);
                 Interlocked.Increment(ref Program._GLOBAL_packages);
                 Program._G_recv = data.RemoteEndPoint;
-                long nextIP;
+                long nextIP = modifyBuffer(ref data);
 
-                unsafe
-                {
-                    fixed (byte* bptr = &(data.Buffer[0]))
-                    {
-                        UInt32* hops = (UInt32*)(bptr +  4);
-                        UInt32* next = (UInt32*)(bptr +  8);
-                        UInt32* last = (UInt32*)(bptr + 12);
-
-                        ++(*hops);
-                        *next = (*next + 1) % *last;
-
-                        UInt32* ips = (UInt32*)(bptr + 16);
-                        nextIP = ips[*next];
-                    }
-                }
-                
-                nextNode.Address = new IPAddress(nextIP);
+                nextNode.Address.Address = nextIP;
                 Program._G_sent = nextNode;
-                //udpSock.SendAsync(data.Buffer, data.Buffer.Length, nextNode).ConfigureAwait(false);
                 udpSock.Send(data.Buffer, data.Buffer.Length, nextNode);
             }
+        }
+        private static UInt32 modifyBuffer(ref UdpReceiveResult data)
+        {
+            Span<UInt32> field = MemoryMarshal.Cast<byte, UInt32>(new Span<byte>(data.Buffer));
+            
+            ++field[1];    
+            UInt32 nextIPIdx = (field[2] + 1) % field[3];
+            field[2] = nextIPIdx;
+
+            return field[4 + (Int32)nextIPIdx];
         }
 
         public static byte[] CreateNetworkPackage(IReadOnlyList<IPAddress> IPs)
@@ -62,7 +57,7 @@ namespace UDPRacer
             {
                 BinaryWriter bw = new BinaryWriter(ms);
 
-                bw.Write((UInt32)0x6619FEAF);      // id
+                bw.Write((UInt32)42);              // id
                 bw.Write((UInt32)0);               // hops
                 bw.Write((UInt32)0);               // next
                 bw.Write((UInt32)IPs.Count);       // number of Hosts

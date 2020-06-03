@@ -39,9 +39,6 @@ namespace UDPRacer
 
             using (UdpClient udpSock = new UdpClient(port))
             {
-                IPEndPoint receivedFrom = null;
-                IPEndPoint sentTo = null;
-
                 for (int i = 0; i < Environment.ProcessorCount; ++i)
                 {
                     Race.Start(udpSock, port);
