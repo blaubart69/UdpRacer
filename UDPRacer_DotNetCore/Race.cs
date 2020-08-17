@@ -29,8 +29,10 @@ namespace UDPRacer
             while (true)
             {
                 UdpReceiveResult data = await udpSock.ReceiveAsync().ConfigureAwait(false);
+                
                 Interlocked.Increment(ref Program._GLOBAL_packages);
                 Program._G_recv = data.RemoteEndPoint;
+                
                 long nextIP = modifyBuffer(ref data);
 
                 nextNode.Address.Address = nextIP;
@@ -40,8 +42,9 @@ namespace UDPRacer
         }
         private static UInt32 modifyBuffer(ref UdpReceiveResult data)
         {
-            Span<UInt32> field = MemoryMarshal.Cast<byte, UInt32>(new Span<byte>(data.Buffer));
-            
+            //Span<UInt32> field = MemoryMarshal.Cast<byte, UInt32>(new Span<byte>(data.Buffer));
+            Span<UInt32> field = MemoryMarshal.Cast<byte, UInt32>(data.Buffer);
+
             ++field[1];    
             UInt32 nextIPIdx = (field[2] + 1) % field[3];
             field[2] = nextIPIdx;
